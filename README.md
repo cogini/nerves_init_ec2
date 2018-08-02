@@ -1,4 +1,4 @@
-# NervesInitEc2
+# nerves_init_ec2
 
 **TODO: Add description**
 
