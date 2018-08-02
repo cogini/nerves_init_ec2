@@ -21,7 +21,10 @@ defmodule NervesInitEc2.MixProject do
   end
 
   def application do
-    [extra_applications: [:logger], mod: {NervesInitEc2.Application, []}]
+    [
+      extra_applications: [:logger, :inets],
+      mod: {NervesInitEc2.Application, []}
+    ]
   end
 
   defp package() do
@@ -42,7 +45,7 @@ defmodule NervesInitEc2.MixProject do
       {:nerves_network, "~> 0.3"},
       {:nerves_firmware_ssh, "~> 0.2"},
       {:ring_logger, "~> 0.4"},
-      {:ex_doc, "~> 0.11", only: :dev}
+      # {:ex_doc, "~> 0.11", only: :dev}
     ]
   end
 end
