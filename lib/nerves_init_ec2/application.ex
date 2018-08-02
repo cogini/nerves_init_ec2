@@ -1,19 +1,18 @@
 defmodule NervesInitEc2.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
 
   def start(_type, _args) do
-    # List all child processes to be supervised
+    config_opts = Map.new(Application.get_all_env(:nerves_init_ec2))
+    merged_opts = Map.merge(%NervesInitEc2.Options{}, config_opts)
+
     children = [
-      # Starts a worker by calling: NervesInitEc2.Worker.start_link(arg)
-      # {NervesInitEc2.Worker, arg},
+      {NervesInitEc2.NetworkManager, [merged_opts]},
+      {NervesInitEc2.MetadataManager, [merged_opts]},
+      {NervesInitEc2.SSHConsole, [merged_opts]}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: NervesInitEc2.Supervisor]
     Supervisor.start_link(children, opts)
   end
