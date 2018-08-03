@@ -46,7 +46,7 @@ defmodule NervesInitEc2.MetadataManager do
       {:ok, {_, _, ""}} ->
         []
       {:ok, {_, _, key}} ->
-        [key]
+        [to_string(key)]
       result ->
         Logger.error("Error reading instance metadata: #{inspect result}")
         []

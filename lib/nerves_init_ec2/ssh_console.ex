@@ -18,9 +18,8 @@ defmodule NervesInitEc2.SSHConsole do
     init_daemon(opts.ssh_console_port, opts.ssh_authorized_keys)
   end
 
-  def terminate(_reason, %{daemon_ref: ref}) do
-    :ssh.stop_daemon(ref)
-  end
+  def terminate(_reason, %{daemon_ref: ref}), do: :ssh.stop_daemon(ref)
+  def terminate(_reason, _state), do: :ok
 
   @spec init_daemon(non_neg_integer, list(binary)) :: {:ok, Map.t}
   defp init_daemon(port, []) do
@@ -54,20 +53,25 @@ defmodule NervesInitEc2.SSHConsole do
 
   def handle_info({:system_registry, :global, registry}, state) do
     keys = get_in(registry, [:config, :ssh, :authorized_keys])
-    restart_daemon(state, keys)
+    restart_daemon(keys, state)
   end
 
-  def restart_daemon(state, nil), do: {:noreply, state}
-  def restart_daemon(%{keys: keys} = state, new_keys) when keys == new_keys do
+  def restart_daemon(nil, state), do: {:noreply, state}
+  def restart_daemon(new_keys, %{keys: keys} = state) when new_keys == keys do
     {:noreply, state}
   end
-  def restart_daemon(%{daemon_ref: ref, port: port} = state, new_keys) do
+  def restart_daemon(new_keys, %{daemon_ref: ref, port: port} = state) do
     Logger.debug("restart_daemon: Stopping SSH console #{inspect ref}")
     :ssh.stop_daemon(ref)
 
     Logger.debug("restart_daemon: Starting SSH console on port #{port}, keys #{inspect new_keys}")
     {:ok, ref} = start_daemon(port, new_keys)
     {:noreply, %{state | daemon_ref: ref, keys: new_keys}}
+  end
+  def restart_daemon(new_keys, %{port: port} = state) do
+    Logger.debug("restart_daemon: Starting SSH console on port #{port}, keys #{inspect new_keys}")
+    {:ok, ref} = start_daemon(port, new_keys)
+    {:noreply, Map.merge(state, %{daemon_ref: ref, keys: new_keys})}
   end
 
 end
