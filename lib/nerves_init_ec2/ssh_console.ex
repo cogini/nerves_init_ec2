@@ -12,7 +12,7 @@ defmodule NervesInitEc2.SSHConsole do
   end
 
   def init([opts]) do
-    Logger.debug("#{__MODULE__}: opts: #{inspect opts}")
+    # Logger.debug("#{__MODULE__}: opts: #{inspect opts}")
     SystemRegistry.register()
 
     init_daemon(opts.ssh_console_port, opts.ssh_authorized_keys)
@@ -23,11 +23,11 @@ defmodule NervesInitEc2.SSHConsole do
 
   @spec init_daemon(non_neg_integer, list(binary)) :: {:ok, Map.t}
   defp init_daemon(port, []) do
-    Logger.debug("authorized_keys not defined, waiting")
+    Logger.debug("authorized_keys not defined, waiting for metadata")
     {:ok, %{keys: [], port: port}}
   end
   defp init_daemon(port, keys) do
-    Logger.debug("init_daemon: Starting SSH console on port #{port}, keys #{inspect keys}")
+    Logger.debug("Starting SSH console on port #{port}, keys #{inspect keys}")
     case start_daemon(port, keys) do
       {:ok, ref} ->
         {:ok, %{daemon_ref: ref, keys: keys, port: port}}
@@ -61,15 +61,15 @@ defmodule NervesInitEc2.SSHConsole do
     {:noreply, state}
   end
   def restart_daemon(new_keys, %{daemon_ref: ref, port: port} = state) do
-    Logger.debug("restart_daemon: Stopping SSH console #{inspect ref}")
+    Logger.debug("Stopping SSH console #{inspect ref}")
     :ssh.stop_daemon(ref)
 
-    Logger.debug("restart_daemon: Starting SSH console on port #{port}, keys #{inspect new_keys}")
+    Logger.debug("Starting SSH console on port #{port}, keys #{inspect new_keys}")
     {:ok, ref} = start_daemon(port, new_keys)
     {:noreply, %{state | daemon_ref: ref, keys: new_keys}}
   end
   def restart_daemon(new_keys, %{port: port} = state) do
-    Logger.debug("restart_daemon: Starting SSH console on port #{port}, keys #{inspect new_keys}")
+    Logger.debug("Starting SSH console on port #{port}, keys #{inspect new_keys}")
     {:ok, ref} = start_daemon(port, new_keys)
     {:noreply, Map.merge(state, %{daemon_ref: ref, keys: new_keys})}
   end
