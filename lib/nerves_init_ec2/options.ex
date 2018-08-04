@@ -6,6 +6,6 @@ defmodule NervesInitEc2.Options do
     net_kernel: false,
     node_name: "nerves",
     node_name_public: false,
-    ssh_console_port: nil,
-    ssh_authorized_keys: nil
+    ssh_console_port: 22,
+    ssh_authorized_keys: []
 end
