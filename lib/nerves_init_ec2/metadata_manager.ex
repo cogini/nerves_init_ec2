@@ -19,7 +19,7 @@ defmodule NervesInitEc2.MetadataManager do
 
     set_defaults(opts)
     {:ok, count} = wait_for_metadata(0)
-    Logger.debug("Waited #{count * @metadata_sleep / 1_000} sec for metatdata")
+    Logger.debug("Waited #{count * @metadata_sleep / 1_000} sec for metadata")
 
     registry = SystemRegistry.match(:global, :_)
     update_ssh_authorized_keys(registry)
